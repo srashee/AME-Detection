@@ -7,7 +7,7 @@ import time
 class BasicLSTMModel(object):
     def __init__(self, num_features, time_steps, lstm_size, n_output, batch_size=64, epochs=1000, output_n_epoch=10,
                  learning_rate=0.01, max_loss=0.5, max_pace=0.01, lasso=0.0, ridge=0.0,
-                 optimizer=tf.optimizers.Adam(), name='BasicLSTMModel'):
+                 optimizer=tf.train.AdamOptimizer, name='BasicLSTMModel'):
         """
 
         :param num_features: dimension of input data per time step
@@ -130,7 +130,7 @@ class BasicLSTMModel(object):
 class BidirectionalLSTMModel(BasicLSTMModel):
     def __init__(self, num_features, time_steps, lstm_size, n_output, batch_size=64, epochs=1000, output_n_epoch=10,
                  learning_rate=0.01, max_loss=0.5, max_pace=0.01, lasso=0.0, ridge=0.0,
-                 optimizer=tf.optimizers.Adam(), name='Bi-LSTM'):
+                 optimizer=tf.train.AdamOptimizer, name='Bi-LSTM'):
         super().__init__(num_features, time_steps, lstm_size, n_output, batch_size, epochs, output_n_epoch,
                          learning_rate, max_loss, max_pace, lasso, ridge, optimizer, name)  # 调用父类BasicLSTMModel的初始化函数
 
@@ -156,7 +156,7 @@ class BidirectionalLSTMModel(BasicLSTMModel):
 class ContextAttentionRNN(BidirectionalLSTMModel):
     def __init__(self, num_features, time_steps, lstm_size, n_output, batch_size=64, epochs=1000, output_n_epoch=10,
                  learning_rate=0.01, max_loss=0.5, max_pace=0.01, lasso=0.0, ridge=0.0,
-                 optimizer=tf.optimizers.Adam(), name='CA-RNN'):
+                 optimizer=tf.train.AdamOptimizer, name='CA-RNN'):
 
         self._num_features = num_features
         self._epochs = epochs
@@ -174,7 +174,7 @@ class ContextAttentionRNN(BidirectionalLSTMModel):
         print("learning_rate=", learning_rate, "max_loss=", max_loss, "max_pace=", max_pace, "lasso=", lasso, "ridge=",
               ridge)
 
-        with tf.variable_scope(self._name):
+        with tf.compat.v1.variable_scope(self._name):
             self._x = tf.placeholder(tf.float32, [None, time_steps, num_features], 'input')
             self._y = tf.placeholder(tf.float32, [None, n_output], 'label')
             self._v = tf.placeholder(tf.int32, [time_steps, 10], "context_template")
@@ -319,7 +319,7 @@ class ContextAttentionRNN(BidirectionalLSTMModel):
 class LogisticRegression(object):
     # TODO 所有模型learning_rate需改，在experiment中--已完成
     def __init__(self, num_features, time_steps, n_output, batch_size=64, epochs=1000, output_n_epoch=10,
-                 learning_rate=0.01, max_loss=2.0, max_pace=0.1, lasso=0.0, ridge=0.0, optimizer=tf.optimizers.Adam(),
+                 learning_rate=0.01, max_loss=2.0, max_pace=0.1, lasso=0.0, ridge=0.0, optimizer=tf.train.AdamOptimizer,
                  name='LRModel'):
         self._num_features = num_features
         self._epochs = epochs
@@ -424,7 +424,7 @@ class LogisticRegression(object):
 class CNN(object):
     def __init__(self, num_features, time_steps, lstm_size, n_output, batch_size=64, epochs=1000, output_n_epoch=10,
                  learning_rate=0.01, max_loss=0.5, max_pace=0.01, lasso=0.0, ridge=0.0,
-                 optimizer=tf.optimizers.Adam(), name='CNN'):
+                 optimizer=tf.train.AdamOptimizer, name='CNN'):
 
         self._num_features = num_features
         self._epochs = epochs
@@ -542,7 +542,7 @@ class CNN(object):
 class CACNN(CNN):
     def __init__(self, num_features, time_steps, lstm_size, n_output, batch_size=64, epochs=1000, output_n_epoch=10,
                  learning_rate=0.01, max_loss=0.5, max_pace=0.01, lasso=0.0, ridge=0.0,
-                 optimizer=tf.optimizers.Adam(), name='CA-CNN'):
+                 optimizer=tf.train.AdamOptimizer, name='CA-CNN'):
 
         self._num_features = num_features
         self._epochs = epochs
