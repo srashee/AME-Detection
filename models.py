@@ -90,8 +90,8 @@ class BasicLSTMModel(object):
         count = 0
         while data_set.epoch_completed < self._epochs:
             dynamic_feature, labels = data_set.next_batch(self._batch_size)
-            self._sess.run(self._train_op, feed_dict={self._x: dynamic_feature,
-                                                      self._y: labels})
+            # self._sess.run(self._train_op, feed_dict={self._x: dynamic_feature,
+            #                                           self._y: labels})
 
             if data_set.epoch_completed % self._output_n_epoch == 0 and data_set.epoch_completed not in logged:
                 logged.add(data_set.epoch_completed)
@@ -169,7 +169,7 @@ class ContextAttentionRNN(BidirectionalLSTMModel):
         self._max_pace = max_pace
         self._lasso = lasso
         self._ridge = ridge
-        self._template_format()
+        #self._template_format()
 
         print("learning_rate=", learning_rate, "max_loss=", max_loss, "max_pace=", max_pace, "lasso=", lasso, "ridge=",
               ridge)
@@ -227,10 +227,9 @@ class ContextAttentionRNN(BidirectionalLSTMModel):
     def _template_format(self):
         template_i = np.array([0, 1, 2, 3, 4, 6, 7, 8, 9, 10], dtype=np.int32).reshape([1, -1])
         add_one = np.ones([10], dtype=np.int32).reshape([1, -1])
-        self._template = np.zeros([0, 10], dtype=np.int32)
-        for i in range(self._time_steps):
-            self._template = np.concatenate([self._template, template_i], 0)
-            template_i = template_i + add_one
+        #self._template = np.zeros([0, 10], dtype=np.int32)
+        # self._template = np.concatenate([self._template, template_i], 0)
+        #template_i = template_i + add_one
 
     def _attention_mechanism(self):
         W_x = tf.tile(self._W_trans, [self._time_steps, 1])
@@ -270,10 +269,12 @@ class ContextAttentionRNN(BidirectionalLSTMModel):
         # TODO 迭代停止条件改写已完成， 若试参可逐步显示各指标
         while data_set.epoch_completed < self._epochs:
             dynamic_feature, labels = data_set.next_batch(self._batch_size)
-            # dynamic_feature = self._attention(dynamic_feature)
-            self._sess.run(self._train_op, feed_dict={self._x: dynamic_feature,
-                                                      self._y: labels,
-                                                      self._v: self._template})
+            dynamic_feature = self._attention(dynamic_feature)
+            print("dynamic feature is ")
+            print(dynamic_feature)
+            # self._sess.run(self._train_op, feed_dict={self._x: dynamic_feature,
+            #                                           self._y: labels,
+            #                                           self._v: self._template})
 
             if data_set.epoch_completed % self._output_n_epoch == 0 and data_set.epoch_completed not in logged:
                 logged.add(data_set.epoch_completed)
@@ -501,8 +502,8 @@ class CNN(object):
         while data_set.epoch_completed < self._epochs:
             dynamic_feature, labels = data_set.next_batch(self._batch_size)
             # dynamic_feature = self._attention(dynamic_feature)
-            self._sess.run(self._train_op, feed_dict={self._x: dynamic_feature,
-                                                      self._y: labels})
+            # self._sess.run(self._train_op, feed_dict={self._x: dynamic_feature,
+            #                                           self._y: labels})
 
             if data_set.epoch_completed % self._output_n_epoch == 0 and data_set.epoch_completed not in logged:
                 logged.add(data_set.epoch_completed)
@@ -555,7 +556,7 @@ class CACNN(CNN):
         self._max_pace = max_pace
         self._lasso = lasso
         self._ridge = ridge
-        self._template_format()
+        #self._template_format()
 
         print("learning_rate=", learning_rate, "max_loss=", max_loss, "max_pace=", max_pace, "lasso=", lasso, "ridge=",
               ridge)
@@ -659,8 +660,8 @@ class CACNN(CNN):
         while data_set.epoch_completed < self._epochs:
             dynamic_feature, labels = data_set.next_batch(self._batch_size)
             # dynamic_feature = self._attention(dynamic_feature)
-            self._sess.run(self._train_op, feed_dict={self._x: dynamic_feature,
-                                                      self._y: labels})
+            # self._sess.run(self._train_op, feed_dict={self._x: dynamic_feature,
+            #                                           self._y: labels})
 
             if data_set.epoch_completed % self._output_n_epoch == 0 and data_set.epoch_completed not in logged:
                 logged.add(data_set.epoch_completed)
