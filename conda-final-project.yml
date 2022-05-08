@@ -1,0 +1,17 @@
+#conda env create --name auto-slides --file=auto-slides.yml
+name: dlh-ame-detection
+channels:
+  - conda-forge
+dependencies:
+  - python=3.7.10
+  - pandas
+  - numpy
+  - seaborn
+  - matplotlib
+  - tensorflow
+  - gensim
+  - scikit-learn
+  - xlwt
+  - xlsxwriter
+  - imbalanced-learn
+  - pickle5

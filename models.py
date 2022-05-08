@@ -7,7 +7,7 @@ import time
 class BasicLSTMModel(object):
     def __init__(self, num_features, time_steps, lstm_size, n_output, batch_size=64, epochs=1000, output_n_epoch=10,
                  learning_rate=0.01, max_loss=0.5, max_pace=0.01, lasso=0.0, ridge=0.0,
-                 optimizer=tf.optimizers.Adam(), name='BasicLSTMModel'):
+                 optimizer=tf.train.AdamOptimizer, name='BasicLSTMModel'):
         """
 
         :param num_features: dimension of input data per time step
@@ -90,8 +90,8 @@ class BasicLSTMModel(object):
         count = 0
         while data_set.epoch_completed < self._epochs:
             dynamic_feature, labels = data_set.next_batch(self._batch_size)
-            self._sess.run(self._train_op, feed_dict={self._x: dynamic_feature,
-                                                      self._y: labels})
+            # self._sess.run(self._train_op, feed_dict={self._x: dynamic_feature,
+            #                                           self._y: labels})
 
             if data_set.epoch_completed % self._output_n_epoch == 0 and data_set.epoch_completed not in logged:
                 logged.add(data_set.epoch_completed)
@@ -130,7 +130,7 @@ class BasicLSTMModel(object):
 class BidirectionalLSTMModel(BasicLSTMModel):
     def __init__(self, num_features, time_steps, lstm_size, n_output, batch_size=64, epochs=1000, output_n_epoch=10,
                  learning_rate=0.01, max_loss=0.5, max_pace=0.01, lasso=0.0, ridge=0.0,
-                 optimizer=tf.optimizers.Adam(), name='Bi-LSTM'):
+                 optimizer=tf.train.AdamOptimizer, name='Bi-LSTM'):
         super().__init__(num_features, time_steps, lstm_size, n_output, batch_size, epochs, output_n_epoch,
                          learning_rate, max_loss, max_pace, lasso, ridge, optimizer, name)  # 调用父类BasicLSTMModel的初始化函数
 
@@ -156,7 +156,7 @@ class BidirectionalLSTMModel(BasicLSTMModel):
 class ContextAttentionRNN(BidirectionalLSTMModel):
     def __init__(self, num_features, time_steps, lstm_size, n_output, batch_size=64, epochs=1000, output_n_epoch=10,
                  learning_rate=0.01, max_loss=0.5, max_pace=0.01, lasso=0.0, ridge=0.0,
-                 optimizer=tf.optimizers.Adam(), name='CA-RNN'):
+                 optimizer=tf.train.AdamOptimizer, name='CA-RNN'):
 
         self._num_features = num_features
         self._epochs = epochs
@@ -169,12 +169,12 @@ class ContextAttentionRNN(BidirectionalLSTMModel):
         self._max_pace = max_pace
         self._lasso = lasso
         self._ridge = ridge
-        self._template_format()
+        #self._template_format()
 
         print("learning_rate=", learning_rate, "max_loss=", max_loss, "max_pace=", max_pace, "lasso=", lasso, "ridge=",
               ridge)
 
-        with tf.variable_scope(self._name):
+        with tf.compat.v1.variable_scope(self._name):
             self._x = tf.placeholder(tf.float32, [None, time_steps, num_features], 'input')
             self._y = tf.placeholder(tf.float32, [None, n_output], 'label')
             self._v = tf.placeholder(tf.int32, [time_steps, 10], "context_template")
@@ -227,10 +227,9 @@ class ContextAttentionRNN(BidirectionalLSTMModel):
     def _template_format(self):
         template_i = np.array([0, 1, 2, 3, 4, 6, 7, 8, 9, 10], dtype=np.int32).reshape([1, -1])
         add_one = np.ones([10], dtype=np.int32).reshape([1, -1])
-        self._template = np.zeros([0, 10], dtype=np.int32)
-        for i in range(self._time_steps):
-            self._template = np.concatenate([self._template, template_i], 0)
-            template_i = template_i + add_one
+        #self._template = np.zeros([0, 10], dtype=np.int32)
+        # self._template = np.concatenate([self._template, template_i], 0)
+        #template_i = template_i + add_one
 
     def _attention_mechanism(self):
         W_x = tf.tile(self._W_trans, [self._time_steps, 1])
@@ -270,10 +269,12 @@ class ContextAttentionRNN(BidirectionalLSTMModel):
         # TODO 迭代停止条件改写已完成， 若试参可逐步显示各指标
         while data_set.epoch_completed < self._epochs:
             dynamic_feature, labels = data_set.next_batch(self._batch_size)
-            # dynamic_feature = self._attention(dynamic_feature)
-            self._sess.run(self._train_op, feed_dict={self._x: dynamic_feature,
-                                                      self._y: labels,
-                                                      self._v: self._template})
+            dynamic_feature = self._attention(dynamic_feature)
+            print("dynamic feature is ")
+            print(dynamic_feature)
+            # self._sess.run(self._train_op, feed_dict={self._x: dynamic_feature,
+            #                                           self._y: labels,
+            #                                           self._v: self._template})
 
             if data_set.epoch_completed % self._output_n_epoch == 0 and data_set.epoch_completed not in logged:
                 logged.add(data_set.epoch_completed)
@@ -319,7 +320,7 @@ class ContextAttentionRNN(BidirectionalLSTMModel):
 class LogisticRegression(object):
     # TODO 所有模型learning_rate需改，在experiment中--已完成
     def __init__(self, num_features, time_steps, n_output, batch_size=64, epochs=1000, output_n_epoch=10,
-                 learning_rate=0.01, max_loss=2.0, max_pace=0.1, lasso=0.0, ridge=0.0, optimizer=tf.optimizers.Adam(),
+                 learning_rate=0.01, max_loss=2.0, max_pace=0.1, lasso=0.0, ridge=0.0, optimizer=tf.train.AdamOptimizer,
                  name='LRModel'):
         self._num_features = num_features
         self._epochs = epochs
@@ -424,7 +425,7 @@ class LogisticRegression(object):
 class CNN(object):
     def __init__(self, num_features, time_steps, lstm_size, n_output, batch_size=64, epochs=1000, output_n_epoch=10,
                  learning_rate=0.01, max_loss=0.5, max_pace=0.01, lasso=0.0, ridge=0.0,
-                 optimizer=tf.optimizers.Adam(), name='CNN'):
+                 optimizer=tf.train.AdamOptimizer, name='CNN'):
 
         self._num_features = num_features
         self._epochs = epochs
@@ -501,8 +502,8 @@ class CNN(object):
         while data_set.epoch_completed < self._epochs:
             dynamic_feature, labels = data_set.next_batch(self._batch_size)
             # dynamic_feature = self._attention(dynamic_feature)
-            self._sess.run(self._train_op, feed_dict={self._x: dynamic_feature,
-                                                      self._y: labels})
+            # self._sess.run(self._train_op, feed_dict={self._x: dynamic_feature,
+            #                                           self._y: labels})
 
             if data_set.epoch_completed % self._output_n_epoch == 0 and data_set.epoch_completed not in logged:
                 logged.add(data_set.epoch_completed)
@@ -542,7 +543,7 @@ class CNN(object):
 class CACNN(CNN):
     def __init__(self, num_features, time_steps, lstm_size, n_output, batch_size=64, epochs=1000, output_n_epoch=10,
                  learning_rate=0.01, max_loss=0.5, max_pace=0.01, lasso=0.0, ridge=0.0,
-                 optimizer=tf.optimizers.Adam(), name='CA-CNN'):
+                 optimizer=tf.train.AdamOptimizer, name='CA-CNN'):
 
         self._num_features = num_features
         self._epochs = epochs
@@ -555,7 +556,7 @@ class CACNN(CNN):
         self._max_pace = max_pace
         self._lasso = lasso
         self._ridge = ridge
-        self._template_format()
+        #self._template_format()
 
         print("learning_rate=", learning_rate, "max_loss=", max_loss, "max_pace=", max_pace, "lasso=", lasso, "ridge=",
               ridge)
@@ -659,8 +660,8 @@ class CACNN(CNN):
         while data_set.epoch_completed < self._epochs:
             dynamic_feature, labels = data_set.next_batch(self._batch_size)
             # dynamic_feature = self._attention(dynamic_feature)
-            self._sess.run(self._train_op, feed_dict={self._x: dynamic_feature,
-                                                      self._y: labels})
+            # self._sess.run(self._train_op, feed_dict={self._x: dynamic_feature,
+            #                                           self._y: labels})
 
             if data_set.epoch_completed % self._output_n_epoch == 0 and data_set.epoch_completed not in logged:
                 logged.add(data_set.epoch_completed)
