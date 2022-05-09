@@ -50,3 +50,11 @@ if the prerequisites are met.
 The context aware RNN model can now be trained and evaluated after 
 completing the steps above. We load the discharge note word embeddings,
 labeled word embeddings and we fit the model. 
+
+
+## Citation
+
+Chu, J., Dong, W., He, K., Duan, H.,; Huang, Z. (2018). Using neural attention networks to detect adverse medical events from electronic health records. Journal of Biomedical Informatics, 87, 118–130. https://doi.org/10.1016/j.jbi.2018.10.002 
+
+
+Zju-Bmi. (n.d.). Zju-BMI/Ame-detection. GitHub. Retrieved May 8, 2022, from https://github.com/ZJU-BMI/AME-detection 
