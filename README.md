@@ -44,7 +44,8 @@ site bleeding, gastrointestinal bleeding and intracranial hemorrhage)
 
 ## Usage
 The code can be run as a Jupyter Notebook by running ame-detection-final.ipynb
-if the prerequisites are met.
+if the prerequisites are met. Dependenices, Documentation, Training, Evaluation and Results are
+all self contained within the notebook. Use the Conda Environment to run the Notebook.
 
 ## Model
 The context aware RNN model can now be trained and evaluated after 
